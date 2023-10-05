@@ -9,7 +9,8 @@ export type TExcersice_plan = {
         Duracion_Max: Number,
         Hora_inicio: String,
       }
-    ]
+    ],
+    promedio?: Number
 };
 
 export interface IExcersice_plan extends TExcersice_plan, Document {}
@@ -23,7 +24,11 @@ const Excersice_planSchema: Schema = new Schema({
         Duracion_Max: Number,
         Hora_inicio: String,
       }
-    ]
+    ],
+    promedio: {
+      Type: Number,
+      required: false,
+    }
 });
 
 

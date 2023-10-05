@@ -2,11 +2,38 @@ import { Router, Response, json } from "express";
 import { check, validationResult } from "express-validator";
 import HttpStatusCodes from "http-status-codes";
 
+import * as amqp from 'amqplib';
+
 import Excersice_plan, { TExcersice_plan, IExcersice_plan } from "../../models/Excersice_plan";
 import Request from "../../types/Request";
 import request from "../../types/Request";
 
 const router: Router = Router();
+
+async function publishToQueue(id:string) {
+  try {
+    // Conectarse al servidor RabbitMQ
+    const connection = await amqp.connect('amqps://qximukxs:yzbo3VQ2vlK9C5-QuUFjx55LTsNy5lQJ@shrimp.rmq.cloudamqp.com/qximukxs');
+    const channel = await connection.createChannel();
+    const queueName = 'rutinas';
+    const message = {id:id};
+
+    // Declarar la cola si no existe
+    await channel.assertQueue(queueName, { durable: false });
+
+    // Publicar el mensaje en la cola
+    channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
+
+    console.log(`Mensaje enviado: ${message}`);
+
+    // Cerrar el canal y la conexión
+    await channel.close();
+    await connection.close();
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
 
 router.get("/:id", async (req: Request, res: Response) => {
   try {
@@ -112,7 +139,7 @@ router.post(
       const Excersice_plans = new Excersice_plan(Excersice_planFields);
 
       await Excersice_plans.save();
-
+      publishToQueue(Excersice_plans.id)
       res.json(Excersice_plans);
     } catch (err) {
       console.error(err.message);
@@ -233,6 +260,7 @@ router.delete("/:Id", async (req: Request, res: Response) => {
         })
       }
     await Excersice_plans.save()
+    publishToQueue(Excersice_plans.id)
     res.json(Excersice_plans);
     } catch (err) {
       console.error(err.message);
