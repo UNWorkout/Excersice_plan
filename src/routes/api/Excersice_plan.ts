@@ -12,7 +12,6 @@ const router: Router = Router();
 
 async function publishToQueue(id:string) {
   try {
-    // Conectarse al servidor RabbitMQ
     const connection = await amqp.connect('amqps://qximukxs:yzbo3VQ2vlK9C5-QuUFjx55LTsNy5lQJ@shrimp.rmq.cloudamqp.com/qximukxs');
     const channel = await connection.createChannel();
     const queueName = 'rutinas';
