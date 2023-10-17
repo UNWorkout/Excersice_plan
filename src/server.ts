@@ -7,38 +7,14 @@ import { ObjectId } from 'bson';
 import connectDB from "../config/database";
 import Excersice_plan from "./routes/api/Excersice_plan";
 
-async function consumeMessage() {
-  const connection = await amqp.connect('amqps://qximukxs:yzbo3VQ2vlK9C5-QuUFjx55LTsNy5lQJ@shrimp.rmq.cloudamqp.com/qximukxs');
-  const channel = await connection.createChannel();
-  const queueName = 'rutinas';
-
-  await channel.assertQueue(queueName, { durable: false });
-  console.log('Esperando mensajes. Para salir, presione CTRL+C');
-
-  channel.consume(queueName, (msg) => {
-    if (msg !== null) {
-      const message = msg.content.toString();
-      console.log(`Mensaje recibido: ${message}`);
-      channel.ack(msg);
-    }
-  });
-}
-
-consumeMessage().catch(console.error);
-
-/* (async () => {
+(async () => {
   async function callback(msg: amqp.ConsumeMessage | null) {
-    console.log("el siguiente es lo que quiero ver")
-    console.log(msg)
-    if (msg) {
       try {
         const rutina = JSON.parse(msg.content.toString());
-        const client = new MongoClient.MongoClient("mongodb+srv://jnedsmmn:YiWonQkZzK@cluster0.enizadg.mongodb.net/?retryWrites=true&m=majority");
+        const client = new MongoClient.MongoClient("mongodb+srv://jnedsmmn:YiWonQkZzK@cluster0.enizadg.mongodb.net/?retryWrites=true");
         await client.connect();
-        console.log("Conectado a la base de datos");
         const db = client.db("test");
         const collection = db.collection("excersice_plans");
-
         const result = await collection.findOne({ "_id": new ObjectId(rutina.id) });
         const dias_semana = result.dias_semana;
         let c = 0;
@@ -50,14 +26,13 @@ consumeMessage().catch(console.error);
         const query = { "_id": new ObjectId(rutina.id) };
         const newValues = { "$set": { "promedio": promedio } };
         const control = await collection.updateOne(query, newValues);
-
         console.log("Mensaje procesado:", msg.content.toString());
 
         await client.close();
       } catch (e) {
         console.error("Identificador no válido", msg.content.toString());
+        console.error(e)
       }
-    }
   }
 
   // Conexión a RabbitMQ
@@ -77,7 +52,7 @@ consumeMessage().catch(console.error);
 
   // Iniciar el consumo de mensajes
   console.log("Esperando mensajes. Para salir, presiona CTRL+C");
-})(); */
+})();
 
 const app = express();
 
