@@ -3,7 +3,7 @@ Microservicio encargado de administrar el plan de ejercicios
 ## Despliegue del microservicio
   **Construye la imagen del ms:**
   ```bash
-  docker build -t ExercisePlan_ms .
+  docker build -t exerciseplan_ms .
   ```
 ## Formato json
   ```bash
